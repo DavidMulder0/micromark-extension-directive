@@ -69,6 +69,7 @@
   "repository": "micromark/micromark-extension-directive",
   "scripts": {
     "build": "tsc --build --clean && tsc --build && type-coverage && micromark-build",
+    "prepare": "micromark-build",
     "format": "remark --frail --output --quiet -- . && prettier --log-level warn --write -- . && xo --fix",
     "test-api-prod": "node --conditions production test/index.js",
     "test-api-dev": "node --conditions development test/index.js",
