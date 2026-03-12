@@ -31,7 +31,7 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   await t.test(
     'should support a directive after an escaped colon',
     async function () {
-      assert.equal(micromark('\\::a', options()), '<p>:</p>')
+      assert.equal(micromark('\\::a[]', options()), '<p>:</p>')
     }
   )
 
@@ -50,20 +50,23 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   )
 
   await t.test(
-    'should support a colon followed by a letter',
+    'should not support a bare directive (colon followed by a letter)',
     async function () {
-      assert.equal(micromark(':a', options()), '<p></p>')
+      assert.equal(micromark(':a', options()), '<p>:a</p>')
     }
   )
 
-  await t.test('should support a colon followed by a digit', async function () {
-    assert.equal(micromark(':9', options()), '<p></p>')
-  })
+  await t.test(
+    'should not support a bare directive (colon followed by a digit)',
+    async function () {
+      assert.equal(micromark(':9', options()), '<p>:9</p>')
+    }
+  )
 
   await t.test(
-    'should support a colon followed by non-ascii letters',
+    'should not support a bare directive (colon followed by non-ascii letters)',
     async function () {
-      assert.equal(micromark('a :פּלוטאָ b', options()), '<p>a  b</p>')
+      assert.equal(micromark('a :פּלוטאָ b', options()), '<p>a :פּלוטאָ b</p>')
     }
   )
 
@@ -88,13 +91,19 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
     }
   )
 
-  await t.test('should support a digit in a name', async function () {
-    assert.equal(micromark(':a9', options()), '<p></p>')
-  })
+  await t.test(
+    'should not support a bare directive with a digit in name',
+    async function () {
+      assert.equal(micromark(':a9', options()), '<p>:a9</p>')
+    }
+  )
 
-  await t.test('should support a dash in a name', async function () {
-    assert.equal(micromark(':a-b', options()), '<p></p>')
-  })
+  await t.test(
+    'should not support a bare directive with a dash in name',
+    async function () {
+      assert.equal(micromark(':a-b', options()), '<p>:a-b</p>')
+    }
+  )
 
   await t.test(
     'should *not* support a dash at the end of a name',
@@ -103,9 +112,12 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
     }
   )
 
-  await t.test('should support an underscore in a name', async function () {
-    assert.equal(micromark(':a_b', options()), '<p></p>')
-  })
+  await t.test(
+    'should not support a bare directive with an underscore in name',
+    async function () {
+      assert.equal(micromark(':a_b', options()), '<p>:a_b</p>')
+    }
+  )
 
   await t.test(
     'should *not* support an underscore at the end of a name',
@@ -144,30 +156,30 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   })
 
   await t.test(
-    'should support a name followed by an unclosed `[`',
+    'should not support a name followed by an unclosed `[`',
     async function () {
-      assert.equal(micromark(':a[', options()), '<p>[</p>')
+      assert.equal(micromark(':a[', options()), '<p>:a[</p>')
     }
   )
 
   await t.test(
-    'should support a name followed by an unclosed `{`',
+    'should not support a name followed by an unclosed `{`',
     async function () {
-      assert.equal(micromark(':a{', options()), '<p>{</p>')
+      assert.equal(micromark(':a{', options()), '<p>:a{</p>')
     }
   )
 
   await t.test(
-    'should support a name followed by an unclosed `[` w/ content',
+    'should not support a name followed by an unclosed `[` w/ content',
     async function () {
-      assert.equal(micromark(':a[b', options()), '<p>[b</p>')
+      assert.equal(micromark(':a[b', options()), '<p>:a[b</p>')
     }
   )
 
   await t.test(
-    'should support a name followed by an unclosed `{` w/ content',
+    'should not support a name followed by an unclosed `{` w/ content',
     async function () {
-      assert.equal(micromark(':a{b', options()), '<p>{b</p>')
+      assert.equal(micromark(':a{b', options()), '<p>:a{b</p>')
     }
   )
 
@@ -298,35 +310,35 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   )
 
   await t.test('should not support an empty shortcut (`.`)', async function () {
-    assert.equal(micromark(':a{..b}', options()), '<p>{..b}</p>')
+    assert.equal(micromark(':a{..b}', options()), '<p>:a{..b}</p>')
   })
 
   await t.test('should not support an empty shortcut (`#`)', async function () {
-    assert.equal(micromark(':a{.#b}', options()), '<p>{.#b}</p>')
+    assert.equal(micromark(':a{.#b}', options()), '<p>:a{.#b}</p>')
   })
 
   await t.test('should not support an empty shortcut (`}`)', async function () {
-    assert.equal(micromark(':a{.}', options()), '<p>{.}</p>')
+    assert.equal(micromark(':a{.}', options()), '<p>:a{.}</p>')
   })
 
   await t.test(
     'should not support certain characters in shortcuts (`=`)',
     async function () {
-      assert.equal(micromark(':a{.a=b}', options()), '<p>{.a=b}</p>')
+      assert.equal(micromark(':a{.a=b}', options()), '<p>:a{.a=b}</p>')
     }
   )
 
   await t.test(
     'should not support certain characters in shortcuts (`"`)',
     async function () {
-      assert.equal(micromark(':a{.a"b}', options()), '<p>{.a&quot;b}</p>')
+      assert.equal(micromark(':a{.a"b}', options()), '<p>:a{.a&quot;b}</p>')
     }
   )
 
   await t.test(
     'should not support certain characters in shortcuts (`<`)',
     async function () {
-      assert.equal(micromark(':a{.a<b}', options()), '<p>{.a&lt;b}</p>')
+      assert.equal(micromark(':a{.a<b}', options()), '<p>:a{.a&lt;b}</p>')
     }
   )
 
@@ -376,28 +388,28 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   await t.test(
     'should not support `=` to start an unquoted attribute value',
     async function () {
-      assert.equal(micromark(':a{b==}', options()), '<p>{b==}</p>')
+      assert.equal(micromark(':a{b==}', options()), '<p>:a{b==}</p>')
     }
   )
 
   await t.test(
     'should not support a missing attribute value after `=`',
     async function () {
-      assert.equal(micromark(':a{b=}', options()), '<p>{b=}</p>')
+      assert.equal(micromark(':a{b=}', options()), '<p>:a{b=}</p>')
     }
   )
 
   await t.test(
     'should not support an apostrophe in an unquoted attribute value',
     async function () {
-      assert.equal(micromark(":a{b=c'}", options()), "<p>{b=c'}</p>")
+      assert.equal(micromark(":a{b=c'}", options()), "<p>:a{b=c'}</p>")
     }
   )
 
   await t.test(
     'should not support a grave accent in an unquoted attribute value',
     async function () {
-      assert.equal(micromark(':a{b=c`}', options()), '<p>{b=c`}</p>')
+      assert.equal(micromark(':a{b=c`}', options()), '<p>:a{b=c`}</p>')
     }
   )
 
@@ -411,7 +423,7 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   await t.test(
     'should not support an EOF in a quoted attribute value',
     async function () {
-      assert.equal(micromark(':a{b="c', options()), '<p>{b=&quot;c</p>')
+      assert.equal(micromark(':a{b="c', options()), '<p>:a{b=&quot;c</p>')
     }
   )
 
@@ -432,7 +444,10 @@ test('micromark-extension-directive (syntax, text)', async function (t) {
   await t.test(
     'should not support an EOF after a quoted attribute value',
     async function () {
-      assert.equal(micromark(':a{b="c"', options()), '<p>{b=&quot;c&quot;</p>')
+      assert.equal(
+        micromark(':a{b="c"', options()),
+        '<p>:a{b=&quot;c&quot;</p>'
+      )
     }
   )
 })
@@ -1390,7 +1405,6 @@ test('micromark-extension-directive (compile)', async function (t) {
     assert.equal(
       micromark(
         [
-          ':abbr',
           ':abbr[HTML]',
           ':abbr{title="HyperText Markup Language"}',
           ':abbr[HTML]{title="HyperText Markup Language"}'
@@ -1398,7 +1412,6 @@ test('micromark-extension-directive (compile)', async function (t) {
         options({abbr})
       ),
       [
-        '<p><abbr></abbr></p>',
         '<p><abbr>HTML</abbr></p>',
         '<p><abbr title="HyperText Markup Language"></abbr></p>',
         '<p><abbr title="HyperText Markup Language">HTML</abbr></p>'
@@ -1411,7 +1424,6 @@ test('micromark-extension-directive (compile)', async function (t) {
       micromark(
         [
           'Text:',
-          ':youtube',
           ':youtube[Cat in a box a]',
           ':youtube{v=1}',
           ':youtube[Cat in a box b]{v=2}',
@@ -1430,7 +1442,6 @@ test('micromark-extension-directive (compile)', async function (t) {
       ),
       [
         '<p>Text:</p>',
-        '<p></p>',
         '<p></p>',
         '<p><iframe src="https://www.youtube.com/embed/1" allowfullscreen></iframe></p>',
         '<p><iframe src="https://www.youtube.com/embed/2" allowfullscreen title="Cat in a box b"></iframe></p>',
@@ -1452,7 +1463,7 @@ test('micromark-extension-directive (compile)', async function (t) {
     'should support fall through directives (`*`)',
     async function () {
       assert.equal(
-        micromark(':youtube[Cat in a box]\n:br', options({youtube, '*': h})),
+        micromark(':youtube[Cat in a box]\n:br{}', options({youtube, '*': h})),
         '<p><youtube>Cat in a box</youtube>\n<br></p>'
       )
     }
@@ -1518,7 +1529,7 @@ test('content', async function (t) {
           ':abbr[1[2[3[4[5[6[7[8[9[10[11[12[13[14[15[16[17[18[19[20[21[22[23[24[25[26[27[28[29[30[31[32[33[x]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]',
           options({abbr})
         ),
-        '<p><abbr></abbr>[1[2[3[4[5[6[7[8[9[10[11[12[13[14[15[16[17[18[19[20[21[22[23[24[25[26[27[28[29[30[31[32[33[x]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]</p>'
+        '<p>:abbr[1[2[3[4[5[6[7[8[9[10[11[12[13[14[15[16[17[18[19[20[21[22[23[24[25[26[27[28[29[30[31[32[33[x]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]</p>'
       )
     }
   )

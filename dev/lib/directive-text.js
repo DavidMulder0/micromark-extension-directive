@@ -54,8 +54,10 @@ function tokenizeDirectiveText(effects, ok, nok) {
     return code === codes.colon
       ? nok(code)
       : code === codes.leftSquareBracket
-        ? effects.attempt(label, afterLabel, afterLabel)(code)
-        : afterLabel(code)
+        ? effects.attempt(label, afterLabel, nok)(code)
+        : code === codes.leftCurlyBrace
+          ? effects.attempt(attributes, afterAttributes, nok)(code)
+          : nok(code)
   }
 
   /** @type {State} */

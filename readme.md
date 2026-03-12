@@ -1,5 +1,14 @@
 # micromark-extension-directive
 
+> **Note**: this is a fork of
+> [`micromark-extension-directive`](https://github.com/micromark/micromark-extension-directive)
+> that disallows "bare" text directives.
+> A bare text directive is a text directive without a label (`[…]`) or
+> attributes (`{…}`), such as `:name`.
+> In this fork, `:name` is no longer parsed as a directive;
+> use `:name[]` or `:name{}` instead.
+> See [micromark/micromark-extension-directive#33][issue-33] for background.
+
 [![Build][build-badge]][build]
 [![Coverage][coverage-badge]][coverage]
 [![Downloads][downloads-badge]][downloads]
@@ -69,14 +78,14 @@ npm install micromark-extension-directive
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-directive@4'
+import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-directive@5'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-directive@4?bundle'
+  import {directive, directiveHtml} from 'https://esm.sh/micromark-extension-directive@5?bundle'
 </script>
 ```
 
@@ -162,9 +171,6 @@ to enable directive syntax
 
 Create an extension for `micromark` to support directives when serializing to
 HTML.
-
-> 👉 **Note**:
-> this uses KaTeX to render math.
 
 ###### Parameters
 
@@ -272,11 +278,16 @@ The `name` part is required.
 The characters can be alphanumerical, `-`, and `_`.
 `-` or `_` cannot end a name.
 
-The `[label]` part is optional (`:x` and `:x[]` are equivalent)†.
+For *text* directives, at least a `[label]` or `{attributes}` part is
+required.
+A bare `:name` is *not* parsed as a directive.
+Use `:name[]` or `:name{}` instead.
+
+The `[label]` part is optional for leaf and container directives.
 When used,
 it can include text constructs such as emphasis and so on: `x[a *b* c]`.
 
-The `{attributes}` part is optional (`:x` and `:x{}` are equivalent)†.
+The `{attributes}` part is optional (when a label or other part is present).
 When used,
 it is handled like HTML attributes, such as that `{a}`, `{a=""}`, and `{a=''}`
 but also `{a=b}`, `{a="b"}`, and `{a='b'}` are equivalent.
@@ -287,15 +298,6 @@ the last is used; when multiple classes are found,
 they are combined:
 `{.red class=green .blue}` is equivalent to
 `{.red .green .blue}` and `{class="red green blue"}`.
-
-† there is one case where a name must be followed by an empty label or empty
-attributes:
-a *text* directive that only has a name,
-cannot be followed by a colon.
-So,
-`:red:` doesn’t work.
-Use either `:red[]` or `:red{}` instead.
-The reason for this is to allow GitHub emoji (gemoji) and directives to coexist.
 
 Containers can be nested by using more colons outside:
 
@@ -342,10 +344,18 @@ versions of Node.js.
 When we cut a new major release,
 we drop support for unmaintained versions of Node.
 This means we try to keep the current release line,
-`micromark-extension-directive@4`,
+`micromark-extension-directive@5`,
 compatible with Node.js 16.
 
 This package works with `micromark` version `4` and later.
+
+## Fork
+
+This is a fork of
+[`micromark-extension-directive`](https://github.com/micromark/micromark-extension-directive).
+The key change is that "bare" text directives (`:name` without `[]` or `{}`)
+are no longer parsed as directives.
+See [micromark/micromark-extension-directive#33][issue-33] for discussion.
 
 ## Security
 
@@ -448,3 +458,5 @@ or community you agree to abide by its terms.
 [typescript]: https://www.typescriptlang.org
 
 [xss]: https://en.wikipedia.org/wiki/Cross-site_scripting
+
+[issue-33]: https://github.com/micromark/micromark-extension-directive/issues/33
